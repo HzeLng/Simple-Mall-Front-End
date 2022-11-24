@@ -83,54 +83,12 @@
       </el-form>
     </el-tab-pane>
     <el-tab-pane label="收货地址">
-      <el-form
-        :model="dynamicValidateForm"
-        ref="dynamicValidateForm"
-        label-width="100px"
-        class="demo-dynamic"
-      >
-        <el-form-item
-          prop="email"
-          label="默认收货地址"
-          :rules="[
-            { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-            {
-              type: 'email',
-              message: '请输入正确的邮箱地址',
-              trigger: ['blur', 'change'],
-            },
-          ]"
-        >
-          <el-input v-model="dynamicValidateForm.email"></el-input>
-        </el-form-item>
-        <el-form-item
-          v-for="(domain, index) in dynamicValidateForm.domains"
-          :label="'收货地址' + index"
-          :key="domain.key"
-          :prop="'domains.' + index + '.value'"
-          :rules="{
-            required: true,
-            message: '域名不能为空',
-            trigger: 'blur',
-          }"
-        >
-          <el-input v-model="domain.value"></el-input
-          ><el-button @click.prevent="removeDomain(domain)">删除</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitForm('dynamicValidateForm')"
-            >提交</el-button
-          >
-          <el-button @click="addDomain">新增收货地址</el-button>
-          <el-button @click="resetForm('dynamicValidateForm')">重置</el-button>
-        </el-form-item>
-      </el-form>
       <el-form>
         <el-row v-for="(item, index) of regionSelectedOptionsList" :key="index">
           <el-col>
             <div>
+            <span>收货地址{{index + 1}}:</span>
               <el-cascader
-                size="large"
                 :options="regionOptions"
                 v-model="regionSelectedOptionsList[index]"
                 @change="regionHandleChange"
@@ -138,8 +96,24 @@
               >
               </el-cascader>
             </div>
-           
+            <el-form-item
+              prop="string"
+              label="详细信息"
+              :rules="[
+                { required: false, message: '请输入详细信息', trigger: 'blur' },
+                {
+                  type: 'string',
+                  message: '请输入正确的地址信息',
+                  trigger: ['blur', 'change'],
+                },
+              ]"
+            >
+              <el-input v-model="detailRegion[index]" style="width: 50%;"></el-input>
+              <el-button @click.prevent="removeRegion(regionSelectedOptionsList[index])">删除</el-button>
+            </el-form-item>
           </el-col>
+          
+        
         </el-row>
         <el-button @click="addRegion">新增收货地址</el-button>
       </el-form>
@@ -217,8 +191,9 @@ export default {
       // region
       regionOptions: regionDataPlus,
       regionSelectedOptions: [],
-      regionSelectedOptionsList: [['110000', '110100', '110101'], []],
-      regionEdit:false,
+      regionSelectedOptionsList: [["110000", "110100", "110101"], []],
+      regionEdit: false,
+      detailRegion: [""],
     };
   },
   methods: {
@@ -268,14 +243,22 @@ export default {
     regionHandleChange(value) {
       console.log(value);
       console.log(value.length);
-      console.log("whole list")
-    //   console.log(this.regionSelectedOptionsList)
-    //   console.log(this.regionSelectedOptionsList[0])
-    //   console.log(this.regionSelectedOptionsList[0].length)
+      console.log("whole list");
+      //   console.log(this.regionSelectedOptionsList)
+      //   console.log(this.regionSelectedOptionsList[0])
+      //   console.log(this.regionSelectedOptionsList[0].length)
     },
     addRegion() {
       this.regionSelectedOptionsList.push([]);
-    }
+      this.detailRegion.push("");
+    },
+    removeRegion(item) {
+      var index = this.regionSelectedOptionsList.indexOf(item);
+      if (index !== -1) {
+        this.regionSelectedOptionsList.splice(index, 1);
+        this.detailRegion.splice(index, 1);
+      }
+    },
   },
 };
 </script>
