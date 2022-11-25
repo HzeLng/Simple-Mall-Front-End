@@ -33,15 +33,12 @@
           <el-button
             type="primary"
             @click="privateInfoSubmitForm('privateInfoRuleForm')"
-            >立即创建</el-button
+            >确认修改</el-button
           >
           <el-button @click="privateInfoResetForm('privateInfoRuleForm')"
             >重置</el-button
           >
-          <el-button
-            type="primary"
-            @click="privateInfoSubmitForm('privateInfoRuleForm')"
-            :disabled="false"
+          <el-button type="primary" @click="toEditPrivateInfo" :disabled="false"
             >编辑</el-button
           >
         </el-form-item>
@@ -87,7 +84,7 @@
         <el-row v-for="(item, index) of regionSelectedOptionsList" :key="index">
           <el-col>
             <div>
-            <span>收货地址{{index + 1}}:</span>
+              <span>收货地址{{ index + 1 }}:</span>
               <el-cascader
                 :options="regionOptions"
                 v-model="regionSelectedOptionsList[index]"
@@ -108,13 +105,22 @@
                 },
               ]"
             >
-              <el-input v-model="detailRegion[index]" style="width: 50%;"></el-input>
-              <el-button @click.prevent="removeRegion(regionSelectedOptionsList[index])">删除</el-button>
+              <el-input
+                v-model="detailRegion[index]"
+                style="width: 50%"
+              ></el-input>
+              <el-button
+                @click.prevent="removeRegion(regionSelectedOptionsList[index])"
+                >删除</el-button
+              >
             </el-form-item>
           </el-col>
-          
-        
         </el-row>
+        <el-button
+            type="primary"
+            @click="regionListSubmitForm"
+            >保存</el-button
+          >
         <el-button @click="addRegion">新增收货地址</el-button>
       </el-form>
     </el-tab-pane>
@@ -124,6 +130,7 @@
 
 <script>
 import { regionDataPlus } from "element-china-area-data";
+import Qs from 'qs';
 export default {
   data() {
     // 密码管理相关
@@ -170,6 +177,35 @@ export default {
           { required: false, message: "请输入活动名称", trigger: "blur" },
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
+        email: [
+          {
+            type: "email",
+            message: "邮箱格式不正确",
+            trigger: "blur",
+          },
+        ],
+        phone: [
+          {
+            type: "number",
+            message: "手机号格式不正确",
+            trigger: "blur",
+            transform(value) {
+              var phonereg = 11 && /^((13|14|15|16|17|18|19)[0-9]{1}\d{8})$/;
+              if (!phonereg.test(value)) {
+                return false;
+              } else {
+                return Number(value);
+              }
+            },
+          },
+        ],
+        nickName: [
+          {
+            pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9]{3,10}$/,
+            message: "请输入3-10位中英文/数字/下划线",
+            trigger: "blur",
+          },
+        ],
       },
       dynamicValidateForm: {
         domains: [
@@ -185,8 +221,48 @@ export default {
         checkPass: "",
       },
       passWordRules: {
-        pass: [{ validator: validatePass, trigger: "blur" }],
-        checkPass: [{ validator: validatePass2, trigger: "blur" }],
+        // pass: [
+        //   {
+            
+        //     trigger: "blur",
+        //     message:
+        //       "6-20位英文字母、数字或者符号（除空格），且字母、数字和标点符号至少包含两种",
+        //     trigger: "blur",
+        //     pattern:
+        //       /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$)([^\u4e00-\u9fa5\s]){6,20}$/,
+        //       validator: validatePass,
+        //   },
+        // ],
+        // checkPass: [{ validator: validatePass2, trigger: "blur" }],
+        pass: [
+          {
+            required: true,
+            message:
+              "6-20位英文字母、数字或者符号（除空格），且字母、数字和标点符号至少包含两种",
+            trigger: "blur",
+            pattern:
+              /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$)([^\u4e00-\u9fa5\s]){6,20}$/,
+          },
+        ],
+        checkPass: [
+          {
+            required: true,
+            message: "确认密码",
+            trigger: "blur",
+          },
+          {
+            validator: (rule, value, callback) => {
+              if (value === "") {
+                callback(new Error("请再次输入密码"));
+              } else if (value !== this.passWordRuleForm.pass) {
+                callback(new Error("两次输入密码不一致"));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ],
       },
       // region
       regionOptions: regionDataPlus,
@@ -197,28 +273,49 @@ export default {
     };
   },
   methods: {
+    toEditPrivateInfo() {
+      this.privateInfo_edit = false;
+    },
     privateInfoSubmitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+      this.$axios
+        .post("/myInfo/personal", {
+          nickName: this.privateInfoRuleForm.nickName,
+          phone: this.privateInfoRuleForm.phone,
+          email: this.privateInfoRuleForm.email,
+          gender: this.genderValue,
+        })
+        .then((successResponse) => {
+          if (successResponse.data.code === 200) {
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+          }
+        })
+        .catch((failResponse) => {
+          this.$message.error("修改失败，请检查网络状况");
+        });
     },
     privateInfoResetForm(formName) {
       this.$refs[formName].resetFields();
     },
     passWordSubmitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+      this.$axios
+        .post("/myInfo/modifiedPassWord", {
+          username: this.GLOBAL.username,
+          password: this.passWordRuleForm.pass,
+        })
+        .then((successResponse) => {
+          if (successResponse.data.code === 200) {
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+          }
+        })
+        .catch((failResponse) => {
+          this.$message.error("修改失败，请检查网络状况");
+        });
     },
     passWordResetForm(formName) {
       this.$refs[formName].resetFields();
@@ -259,6 +356,26 @@ export default {
         this.detailRegion.splice(index, 1);
       }
     },
+    regionListSubmitForm() {
+      let formData = new FormData();
+      formData.append('regionSelectedOptionsList', this.regionSelectedOptionsList);
+      formData.append('detailRegionList', this.detailRegion);
+      console.log(formData);
+      this.$axios
+        .post("/myInfo/modifiedAddressList",formData
+        )
+        .then((successResponse) => {
+          if (successResponse.data.code === 200) {
+            this.$message({
+              message: "修改成功",
+              type: "success",
+            });
+          }
+        })
+        .catch((failResponse) => {
+          this.$message.error("修改失败，请检查网络状况");
+        });
+    }
   },
 };
 </script>

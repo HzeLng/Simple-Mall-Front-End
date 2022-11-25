@@ -85,6 +85,8 @@ export default {
         .then((successResponse) => {
           console.log(successResponse);
           if (successResponse.data.code === 200) {
+            this.GLOBAL.username = this.loginForm.username
+            console.log(this.GLOBAL.username)
             this.$router.replace({ path: "/home" });
           }
         })
