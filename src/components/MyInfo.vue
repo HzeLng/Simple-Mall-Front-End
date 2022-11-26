@@ -24,7 +24,7 @@
               v-for="item in genderOptions"
               :key="item.value"
               :label="item.label"
-              :value="item.value"
+              :value="item.label"
             >
             </el-option>
           </el-select>
@@ -153,9 +153,9 @@ export default {
       tabPosition: "left",
       privateInfo_edit: true,
       privateInfoRuleForm: {
-        nickName: "京东用户1号",
-        phone: "10086",
-        email: "123456789@qq.com",
+        nickName: "",
+        phone: "",
+        email: "",
       },
       genderValue: "男",
       genderOptions: [
@@ -271,6 +271,7 @@ export default {
   created() {
     console.log("page begin");
     this.getPersonalInfo();
+    this.getReceiveAddressList();
   },
   methods: {
     toEditPrivateInfo() {
@@ -278,7 +279,7 @@ export default {
     },
     privateInfoSubmitForm(formName) {
       this.$axios
-        .post("/myInfo/personal", {
+        .post("/myInfo/modifiedPersonalInfo", {
           username: this.GLOBAL.username,
           nickName: this.privateInfoRuleForm.nickName,
           phone: this.privateInfoRuleForm.phone,
@@ -406,7 +407,9 @@ export default {
     },
     getPersonalInfo() {
       this.$axios
-        .get("/myInfo/getPersonalInfo", {params:{username:this.GLOBAL.username}})
+        .get("/myInfo/getPersonalInfo", {
+          params: { username: this.GLOBAL.username },
+        })
         .then((successResponse) => {
           console.log("1");
           console.log(successResponse.data);
@@ -423,16 +426,35 @@ export default {
             } else {
               this.genderValue = "男";
             }
-             this.privateInfoRuleForm.phone = personalInfo.mobile;
-
-
+            this.privateInfoRuleForm.phone = personalInfo.mobile;
           }
         })
         .catch((failResponse) => {
           console.log("eeeeee");
           console.log(failResponse);
         });
-    }
+    },
+    getReceiveAddressList() {
+      this.$axios
+        .get("/myInfo/getMyInfoReceiveAddressList", {
+          params: { username: this.GLOBAL.username },
+        })
+        .then((successResponse) => {
+          console.log("1");
+          console.log(successResponse.data);
+          if (successResponse.data.code === 200) {
+            // init data
+            let myInfoReceiveAddressDto = successResponse.data.myInfoReceiveAddressDto;
+            this.regionSelectedOptionsList = myInfoReceiveAddressDto.regionSelectedOptionsList;
+            this.detailRegion = myInfoReceiveAddressDto.detailRegionList;
+            console.log(personalInfo.gender);
+          }
+        })
+        .catch((failResponse) => {
+          console.log("eeeeee");
+          console.log(failResponse);
+        });
+    },
   },
 };
 </script>

@@ -131,16 +131,17 @@ export default {
       netProductContent: "908g",
       packingList: "908g礼盒装1盒",
       imgUrls:[],
-      addressList: [
-        {
-          addressId: 1,
-          addressInfo: "德州",
-        },
-        {
-          addressId: 2,
-          addressInfo: "加州",
-        },
-      ],
+      addressList: [],
+      // addressList: [
+      //   {
+      //     addressId: 1,
+      //     addressInfo: "德州",
+      //   },
+      //   {
+      //     addressId: 2,
+      //     addressInfo: "加州",
+      //   },
+      // ],
     };
   },
   created() {
@@ -153,6 +154,8 @@ export default {
     this.productDescription = this.product.productDescription
     this.imgUrls = this.product.imgUrls
     this.getProductDetaiInfo(this.productId);
+    console.log("rdy to get receiveAddressList");
+    this.getReceiveAddressList();
   },
   mounted() {},
   methods: {
@@ -171,7 +174,7 @@ export default {
       this.$axios
         .get("/product/getProductDetailInfo", {params:{productId:this.product.productId, brandId:this.product.brandId}})
         .then((successResponse) => {
-          console.log("1");
+          console.log("getProductDetaiInfo");
           console.log(successResponse.data.productDetailInfo);
           this.productList = successResponse.data.productDetailInfo;
           if (successResponse.data.code === 200) {
@@ -194,7 +197,27 @@ export default {
           console.log("eeeeee");
           console.log(failResponse);
         });
-    }
+    },
+    getReceiveAddressList() {
+      this.$axios
+        .get("/productInfo/getReceiveAddressList", {
+          params: { username: this.GLOBAL.username },
+        })
+        .then((successResponse) => {
+          console.log("getReceiveAddressList");
+          console.log(successResponse.data);
+          if (successResponse.data.code === 200) {
+            // init data
+            let productInfoReceiveAddressDtoList = successResponse.data.productInfoReceiveAddressDtoList;
+            console.log(productInfoReceiveAddressDtoList);
+            this.addressList = productInfoReceiveAddressDtoList;
+          }
+        })
+        .catch((failResponse) => {
+          console.log("eeeeee");
+          console.log(failResponse);
+        });
+    },
   },
 };
 </script>
