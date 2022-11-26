@@ -436,7 +436,7 @@ export default {
     },
     getReceiveAddressList() {
       this.$axios
-        .get("/myInfo/getMyInfoReceiveAddressList", {
+        .get("/myInfo/getReceiveAddressList", {
           params: { username: this.GLOBAL.username },
         })
         .then((successResponse) => {
