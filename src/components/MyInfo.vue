@@ -116,11 +116,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-button
-            type="primary"
-            @click="regionListSubmitForm"
-            >保存</el-button
-          >
+        <el-button type="primary" @click="regionListSubmitForm">保存</el-button>
         <el-button @click="addRegion">新增收货地址</el-button>
       </el-form>
     </el-tab-pane>
@@ -130,7 +126,7 @@
 
 <script>
 import { regionDataPlus } from "element-china-area-data";
-import Qs from 'qs';
+import Qs from "qs";
 export default {
   data() {
     // 密码管理相关
@@ -223,7 +219,7 @@ export default {
       passWordRules: {
         // pass: [
         //   {
-            
+
         //     trigger: "blur",
         //     message:
         //       "6-20位英文字母、数字或者符号（除空格），且字母、数字和标点符号至少包含两种",
@@ -272,6 +268,10 @@ export default {
       detailRegion: [""],
     };
   },
+  created() {
+    console.log("page begin");
+    this.getPersonalInfo();
+  },
   methods: {
     toEditPrivateInfo() {
       this.privateInfo_edit = false;
@@ -279,6 +279,7 @@ export default {
     privateInfoSubmitForm(formName) {
       this.$axios
         .post("/myInfo/personal", {
+          username: this.GLOBAL.username,
           nickName: this.privateInfoRuleForm.nickName,
           phone: this.privateInfoRuleForm.phone,
           email: this.privateInfoRuleForm.email,
@@ -357,13 +358,40 @@ export default {
       }
     },
     regionListSubmitForm() {
-      let formData = new FormData();
-      formData.append('regionSelectedOptionsList', this.regionSelectedOptionsList);
-      formData.append('detailRegionList', this.detailRegion);
-      console.log(formData);
+      // let formData = new FormData();
+      // formData.append("username", this.GLOBAL.username);
+      // formData.append(
+      //   "regionSelectedOptionsList",
+      //   this.regionSelectedOptionsList
+      // );
+      // formData.append("detailRegionList", this.detailRegion);
+      // console.log(formData);
+
+      // this.$axios
+      //   .post("/myInfo/modifiedAddressList", formData)
+      //   .then((successResponse) => {
+      //     if (successResponse.data.code === 200) {
+      //       this.$message({
+      //         message: "修改成功",
+      //         type: "success",
+      //       });
+      //     }
+      //   })
+      //   .catch((failResponse) => {
+      //     this.$message.error("修改失败，请检查网络状况");
+      //   });
+
+      var str = {
+        username: this.GLOBAL.username,
+        regionSelectedOptionsList: this.regionSelectedOptionsList,
+        detailRegionList: this.detailRegion,
+      };
+      console.log(JSON.stringify(str));
+      let data = new FormData();
+
+      data.append("str", JSON.stringify(str));
       this.$axios
-        .post("/myInfo/modifiedAddressList",formData
-        )
+        .post("/myInfo/modifiedAddressList", data)
         .then((successResponse) => {
           if (successResponse.data.code === 200) {
             this.$message({
@@ -374,6 +402,35 @@ export default {
         })
         .catch((failResponse) => {
           this.$message.error("修改失败，请检查网络状况");
+        });
+    },
+    getPersonalInfo() {
+      this.$axios
+        .get("/myInfo/getPersonalInfo", {params:{username:this.GLOBAL.username}})
+        .then((successResponse) => {
+          console.log("1");
+          console.log(successResponse.data);
+          this.productList = successResponse.data.productDetailInfo;
+          if (successResponse.data.code === 200) {
+            // init data
+            let personalInfo = {};
+            personalInfo = successResponse.data.personalInfo;
+            this.privateInfoRuleForm.nickName = personalInfo.nickname;
+            this.privateInfoRuleForm.email = personalInfo.email;
+            console.log(personalInfo.gender);
+            if (personalInfo.gender === 0) {
+              this.genderValue = "女";
+            } else {
+              this.genderValue = "男";
+            }
+             this.privateInfoRuleForm.phone = personalInfo.mobile;
+
+
+          }
+        })
+        .catch((failResponse) => {
+          console.log("eeeeee");
+          console.log(failResponse);
         });
     }
   },

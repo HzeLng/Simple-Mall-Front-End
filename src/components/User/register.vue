@@ -1,5 +1,5 @@
 <template>
-  <div class="page-register">
+  <div class="page-register" style="margin: auto">
     <article class="header">
       <header>
         <el-avatar icon="el-icon-user-solid" shape="circle"></el-avatar>
@@ -15,61 +15,71 @@
       <el-step title="步骤 1"></el-step>
     </el-steps>
 
-    <section>
-      <el-form
-        ref="ruleForm"
-        :model="ruleForm"
-        :rules="rules"
-        label-width="100px"
-        class="demo-ruleForm"
-        autocomplete="off"
-      >
-        <div v-if="active == 0">
-          <el-form-item label="用户名" prop="name">
-            <el-input v-model="ruleForm.name" />
-          </el-form-item>
-          <el-form-item label="密码" prop="pwd">
-            <el-input v-model="ruleForm.pwd" type="password" />
-          </el-form-item>
-          <el-form-item label="确认密码" prop="cpwd">
-            <el-input v-model="ruleForm.cpwd" type="password" />
-          </el-form-item>
-          <el-form-item label="用户昵称" prop="nickName">
-            <el-input v-model="ruleForm.nickName" type="String" />
-          </el-form-item>
-          <el-form-item label="邮箱地址" prop="email">
-            <el-input v-model="ruleForm.email" type="email" />
-          </el-form-item>
-          <el-form-item label="手机号码" prop="phone">
-            <el-input v-model="ruleForm.phone" type="number" />
-          </el-form-item>
-          <el-form-item label="性别" prop="genderValue">
-          <el-select v-model="ruleForm.genderValue" placeholder="请选择">
-            <el-option
-              v-for="item in genderOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="默认收货地址" >
-          <div>
-              <el-cascader
-                :options="regionOptions"
-                v-model="regionSelectedOptions"
-                @change="regionHandleChange"
-              >
-              </el-cascader>
-            </div>
-        </el-form-item>
-        <el-form-item label="详细信息">
-          <el-input v-model="ruleForm.detailRegionInfo" type="String"></el-input>
-        </el-form-item>
-        </div>
-      </el-form>
-    </section>
+    <div class="section-div-class" style="margin: auto">
+      <section>
+        <el-form
+          ref="ruleForm"
+          :model="ruleForm"
+          :rules="rules"
+          label-width="100px"
+          class="demo-ruleForm"
+          autocomplete="off"
+          style="width: 50%; margin: auto"
+        >
+          <div v-if="active == 0">
+            <el-form-item label="用户名" prop="name" style="ma">
+              <el-input v-model="ruleForm.name" />
+              <div class="username-check-result-div">
+                <i :class="iconClass"></i>
+                <span style="font-size: 4px">{{ this.usernameCheckText }}</span>
+              </div>
+            </el-form-item>
+            <el-form-item label="密码" prop="pwd">
+              <el-input v-model="ruleForm.pwd" type="password" />
+            </el-form-item>
+            <el-form-item label="确认密码" prop="cpwd">
+              <el-input v-model="ruleForm.cpwd" type="password" />
+            </el-form-item>
+            <el-form-item label="用户昵称" prop="nickName">
+              <el-input v-model="ruleForm.nickName" type="String" />
+            </el-form-item>
+            <el-form-item label="邮箱地址" prop="email">
+              <el-input v-model="ruleForm.email" type="email" />
+            </el-form-item>
+            <el-form-item label="手机号码" prop="phone">
+              <el-input v-model="ruleForm.phone" type="number" />
+            </el-form-item>
+            <el-form-item label="性别" prop="genderValue">
+              <el-select v-model="ruleForm.genderValue" placeholder="请选择">
+                <el-option
+                  v-for="item in genderOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="默认收货地址">
+              <div>
+                <el-cascader
+                  :options="regionOptions"
+                  v-model="regionSelectedOptions"
+                  @change="regionHandleChange"
+                >
+                </el-cascader>
+              </div>
+            </el-form-item>
+            <el-form-item label="详细信息">
+              <el-input
+                v-model="ruleForm.detailRegionInfo"
+                type="String"
+              ></el-input>
+            </el-form-item>
+          </div>
+        </el-form>
+      </section>
+    </div>
     <div class="footer">
       <el-button
         v-if="active > 0"
@@ -83,6 +93,7 @@
         type="primary"
         icon="el-icon-arrow-right"
         @click="next"
+        :disabled="nextBtnDisabled"
         >下一步</el-button
       >
       <el-button v-if="active == step - 1" type="primary" @click="register"
@@ -94,7 +105,7 @@
 </template>
   
   <script>
-  import { regionDataPlus } from "element-china-area-data";
+import { regionDataPlus } from "element-china-area-data";
 export default {
   data() {
     return {
@@ -103,7 +114,10 @@ export default {
       statusMsg: "",
       error: "",
       regionOptions: regionDataPlus,
+      iconClass: "",
+      usernameCheckText: "",
       regionSelectedOptions: [],
+      nextBtnDisabled: false,
       genderOptions: [
         {
           value: "选项1",
@@ -210,7 +224,7 @@ export default {
             trigger: "blur",
           },
         ],
-        genderValue:[],
+        genderValue: [],
       },
     };
   },
@@ -257,14 +271,16 @@ export default {
             phone: this.ruleForm.phone,
             gender: this.ruleForm.genderValue,
             regionSelectedOptions: this.regionSelectedOptions,
-            detailRegionInfo: this.ruleForm.detailRegionInfo
+            detailRegionInfo: this.ruleForm.detailRegionInfo,
           })
           .then((successResponse) => {
             if (successResponse.data.code === 200) {
               this.$router.replace({ path: "/login" });
             }
           })
-          .catch((failResponse) => {});
+          .catch((failResponse) => {
+            this.$message.error("注册失败，请检查网络状况");
+          });
       }
     },
     prev: function () {
@@ -288,13 +304,57 @@ export default {
       //   console.log(this.regionSelectedOptionsList[0])
       //   console.log(this.regionSelectedOptionsList[0].length)
     },
+    // testttttt
+    nextToTrue() {
+      this.nextBtnDisabled = true;
+    },
+    nextToFalse() {
+      this.nextBtnDisabled = false;
+    },
+  },
+  watch: {
+    "ruleForm.name": {
+      handler(newVal, oldVal) {
+        console.log("newVal", newVal);
+        console.log("oldVal", oldVal);
+        var nameReg = /^[a-zA-Z0-9]{6,10}$/;
+        if (!nameReg.test(newVal)) {
+          this.iconClass = "el-icon-loading";
+          this.usernameCheckText = "";
+          return;
+        } else {
+          let data = new FormData();
+          data.append("possbileUsername", newVal);
+          this.iconClass = "el-icon-loading";
+          this.usernameCheckText = "";
+          this.$axios
+            .post("/usernameDuplicateCheck", data)
+            .then((response) => {
+              console.log(response);
+              if (response.data.code === 200) {
+                this.iconClass = "el-icon-check";
+                this.usernameCheckText = "该用户名可注册";
+              } else if (response.data.code === 515) {
+                this.iconClass = "el-icon-close";
+                this.usernameCheckText = "该用户名已注册";
+              }
+            })
+            .catch((failResponse) => {
+              this.iconClass = "el-icon-warning";
+              this.usernameCheckText = "请求出错";
+            });
+        }
+      },
+      immediate: true,
+    },
   },
 };
 </script>
   
   <style >
 .page-register {
-  .header {
+  margin: auto;
+  /* .header {
     //border-bottom: 2px solid rgb(235, 232, 232);
     min-width: 980px;
     color: #666;
@@ -348,7 +408,16 @@ export default {
 
   .footer {
     text-align: center;
-  }
+  } */
+}
+.el-input {
+  width: 50%;
+  float: left;
+}
+.username-check-result-div {
+  width: 30%;
+  float: left;
+  height: 10%;
 }
 </style>
   
