@@ -7,6 +7,8 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import axios from 'axios'
 import globalToolVue from '@/utils/global';
+import moment from "moment";
+
 // 全局方法挂载
 Vue.prototype.GLOBAL = globalToolVue
 
@@ -22,6 +24,10 @@ Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
 axios.defaults.withCredentials = true;
+
+// time
+moment.locale('zh-cn');
+Vue.prototype.$moment = moment
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

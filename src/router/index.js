@@ -14,6 +14,13 @@ import MyOrder from '@/components/MyOrder'
 import MyInfo from '@/components/MyInfo'
 import Catalog from '@/components/Catalog'
 import SecKill from '@/components/SecKill'
+
+import FirstSessionProductList from '@/components/FirstSessionProductList'
+import SecondSessionProductList from '@/components/SecondSessionProductList'
+import ThirdSessionProductList from '@/components/ThirdSessionProductList'
+
+import SessionProductList from '@/components/SessionProductList'
+import SecKillProductInfo from '@/components/SecKillProductInfo'
 Vue.use(Router)
 
 export default new Router({
@@ -61,6 +68,21 @@ export default new Router({
       path: '/goodsDetails',
       name: 'GoodsDetails',
       component: GoodsDetails
+    },
+    {
+      path: '/secKill',
+      name: 'SecKill',
+      component: SecKill,
+      children: [
+        { path: '/firstSession', component: FirstSessionProductList },
+        { path: '/secondSession', component: SecondSessionProductList },
+        // { path: '/thirdSession', component: ThirdSessionProductList },
+      ],
+    },
+    {
+      path: '/secKillProdcutInfo:id',
+      name: 'SecKillProductInfo',
+      component: SecKillProductInfo
     }
   ]
 })

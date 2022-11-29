@@ -4,9 +4,10 @@
 
 <script>
     export default {
-        name: "globalToolVue",
+      name: "globalToolVue",
       globalProduct:{},
       username:"",
+      globalSecKillProduct:{},
 
     }
 </script>
